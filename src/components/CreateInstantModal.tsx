@@ -3,15 +3,15 @@ import { motion } from 'framer-motion';
 import { Check, Shield, Server, Cpu, Database } from 'lucide-react';
 import Modal from './ui/Modal';
 import Button from './ui/Button'; // Assuming you have a Button component
-import { type Instance } from '../data/mockData';
+import { type Instant } from '../data/mockData';
 
-interface CreateInstanceModalProps {
+interface CreateInstantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: (instance: Instance) => void;
+  onCreated: (instant: Instant) => void;
 }
 
-export default function CreateInstanceModal({ isOpen, onClose, onCreated }: CreateInstanceModalProps) {
+export default function CreateInstantModal({ isOpen, onClose, onCreated }: CreateInstantModalProps) {
   const [step, setStep] = useState<'input' | 'provisioning'>('input');
   const [name, setName] = useState('');
   const [progress, setProgress] = useState(0);
@@ -39,7 +39,7 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
             
             // Success Delay
             setTimeout(() => {
-                const newInstance: Instance = {
+                const newInstant: Instant = {
                     id: `inst-${Date.now()}`,
                     name: name,
                     status: 'active',
@@ -51,7 +51,7 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
                     createdAt: new Date().toISOString(),
                     lastActivity: 'Just now'
                 };
-                onCreated(newInstance);
+                onCreated(newInstant);
             }, 800);
         }
         setProgress(currentProgress);
@@ -62,24 +62,24 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
     { label: "Allocating dedicated GPU resources...", threshold: 20 },
     { label: "Initializing secure context engine...", threshold: 45 },
     { label: "Preparing encrypted storage volume...", threshold: 70 },
-    { label: "Configuring instance parameters...", threshold: 90 },
+    { label: "Configuring Instant parameters...", threshold: 90 },
   ];
 
   return (
     <Modal 
         isOpen={isOpen} 
         onClose={step === 'provisioning' ? () => {} : onClose} // Prevent closing during provisioning
-        title={step === 'input' ? "New Secure Data Environment" : "Creating Your Instance..."}
+        title={step === 'input' ? "Create Instant" : "Creating Your Instant..."}
     >
         <div className="p-6 pt-2">
             
             {/* STEP 1: INPUT & REVIEW */}
             {step === 'input' && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                     {/* Input Field */}
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Instance Name
+                            Instant Name
                         </label>
                         <input 
                             type="text"
@@ -96,7 +96,7 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
                          <div className="flex items-start justify-between mb-4">
                              <div>
                                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                                    SDE Standard Plan Includes:
+                                    Details:
                                  </h3>
                              </div>
                              <div className="text-right">
@@ -116,7 +116,7 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
                                  <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800">
                                     <Database className="w-4 h-4 text-zinc-500" />
                                  </div>
-                                 <span>1GB Secure Data Environment</span>
+                                 <span>1GB Storage</span>
                              </li>
                              <li className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
                                  <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800">
@@ -133,7 +133,7 @@ export default function CreateInstanceModal({ isOpen, onClose, onCreated }: Crea
                         disabled={!name.trim()}
                         className="w-full h-12 text-base text-white dark:text-zinc-900 hover:bg-zinc-200"
                     >
-                        Create & Pay
+                        Deploy Now
                     </Button>
                 </div>
             )}

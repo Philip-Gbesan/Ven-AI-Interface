@@ -210,7 +210,7 @@ export default function Landing() {
           </p>
           <Link to="/signup">
             <Button size="lg">
-              Create Your First Instance
+              Create Your First Instant
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

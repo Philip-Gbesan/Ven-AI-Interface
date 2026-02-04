@@ -22,7 +22,7 @@ export default function Signup() {
     // Simulate signup
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
-    navigate('/app/instances');
+    navigate('/app/iInstants');
   };
 
   return (

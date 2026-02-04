@@ -1,20 +1,29 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageSquare, Plus, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
+import { MessageSquare, Plus, Clock, ChevronRight, ChevronLeft, Upload, File as FileIcon } from 'lucide-react';
 import ChatPanel from '../../../components/ChatPanel';
 import ContextEvidence from '../../../components/ContextEvidence';
+import DataMissingState from '../../../components/DataMissingState';
 import Button from '../../../components/ui/Button';
+import { useUploadQueue } from '../../../hooks/useUploadQueue';
+import { useToast } from '../../../components/ui/Toast';
 import {
-  getInstanceById,
-  getConversationsByInstance,
+  getInstantById,
+  getConversationsByInstant,
+  getFilesByInstant,
+  type FileItem
 } from '../../../data/mockData';
 import type { ChatMessage, ChatSource, Conversation } from '../../../data/mockData';
 
 export default function Chat() {
   const { id } = useParams<{ id: string }>();
-  const instance = getInstanceById(id || '');
-  const conversations = getConversationsByInstance(id || '');
+  const instant = getInstantById(id || '');
+  const conversations = getConversationsByInstant(id || '');
+  const [instanceFiles, setInstanceFiles] = useState<FileItem[]>(getFilesByInstant(id || ''));
+  const { addToast } = useToast();
+  
+  const { isUploading, progress, uploadFiles, currentFilename, recentUpload, progressLabel } = useUploadQueue();
 
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(conversations[0] || null);
@@ -25,10 +34,12 @@ export default function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(true);
 
-  if (!instance) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!instant) {
     return (
       <div className="text-center py-12">
-        <p className="text-zinc-500">Instance not found</p>
+        <p className="text-zinc-500">Instant not found</p>
       </div>
     );
   }
@@ -37,7 +48,7 @@ export default function Chat() {
     // Add user message
     const userMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
-      instanceId: id || '',
+      instantId: id || '',
       role: 'user',
       content,
       timestamp: new Date().toISOString(),
@@ -58,30 +69,17 @@ export default function Chat() {
         chunkIndex: Math.floor(Math.random() * 100),
         relevanceScore: 0.92,
       },
-      {
-        id: `src-${Date.now()}-2`,
-        fileId: 'file-2',
-        fileName: 'NDA_Standard.docx',
-        snippet:
-          'Additional context from another document in your private container. This snippet provides supporting information that complements the primary source.',
-        chunkIndex: Math.floor(Math.random() * 50),
-        relevanceScore: 0.85,
-      },
     ];
 
     const assistantMessage: ChatMessage = {
       id: `msg-${Date.now()}-assistant`,
-      instanceId: id || '',
+      instantId: id || '',
       role: 'assistant',
       content: `Based on the documents in your private container, I found relevant information to answer your question.
 
 The key findings from your uploaded data indicate that [Source 1]:
 
-1. **Primary insight**: The documents contain specific provisions related to your query that are worth noting.
-
-2. **Supporting context**: Additional documentation [Source 2] provides complementary information that helps complete the picture.
-
-Please note that this response is generated strictly from your uploaded data within this isolated instance.`,
+1. **Primary insight**: The documents contain specific provisions related to your query that are worth noting.`,
       sources: mockSources,
       timestamp: new Date().toISOString(),
     };
@@ -106,20 +104,59 @@ Please note that this response is generated strictly from your uploaded data wit
     setSelectedSource(null);
   };
 
+  // Upload Logic
+  const handleUploadClick = () => {
+      fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+          const fileList = Array.from(e.target.files);
+          
+          uploadFiles(fileList, (file) => {
+              const ext = file.name.split('.').pop()?.toLowerCase();
+              let type: any = 'txt';
+              if(['pdf','doc','docx','csv','md'].includes(ext || '')) type = ext;
+
+              const newFile: FileItem = {
+                id: `file-${Date.now()}`,
+                instantId: instant.id,
+                name: file.name,
+                size: file.size,
+                type: type,
+                status: 'ready', 
+                uploadedAt: new Date().toISOString(),
+                chunkCount: 10,
+              };
+              
+              setInstanceFiles(prev => [newFile, ...prev]);
+          });
+      }
+  };
+
   return (
     <div className="h-[calc(100vh-8rem)] flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+      <input 
+          type="file" 
+          multiple
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          className="hidden" 
+      />
+      
       {/* Conversation History - Left Panel */}
       <motion.div
         initial={{ width: historyOpen ? 280 : 0 }}
         animate={{ width: historyOpen ? 280 : 0 }}
-        className="flex-shrink-0 border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 overflow-hidden"
+        className="flex-shrink-0 border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 overflow-hidden flex flex-col"
       >
         <div className="h-full flex flex-col w-[280px]">
-          {/* Header */}
-          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
+          
+          {/* Section 1: Top Header & New Chat */}
+          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                History
+                Chats
               </h2>
               <button
                 onClick={() => setHistoryOpen(false)}
@@ -139,7 +176,7 @@ Please note that this response is generated strictly from your uploaded data wit
             </Button>
           </div>
 
-          {/* Conversation List */}
+          {/* Section 2: Scrollable History List */}
           <div className="flex-1 overflow-y-auto p-2">
             {conversations.length > 0 ? (
               <div className="space-y-1">
@@ -175,6 +212,49 @@ Please note that this response is generated strictly from your uploaded data wit
               </div>
             )}
           </div>
+          
+          {/* Section 3: Bottom Upload Zone */}
+          <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 flex-shrink-0">
+             <div className="flex items-center justify-between mb-3">
+                 <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                     Uploads
+                 </h3>
+                 {isUploading && <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">{Math.round(progress)}%</span>}
+             </div>
+             
+             <button 
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className="w-full border border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg p-3 flex items-center justify-center gap-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors group mb-3 relative overflow-hidden"
+             >
+                 {isUploading && (
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: '100%' }}
+                        className="absolute bottom-0 left-0 h-1 bg-zinc-500"
+                    />
+                 )}
+                 {recentUpload ? (
+                     <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                         className="flex items-center gap-2 text-zinc-500 text-xs font-medium"
+                     >
+                         <span>— {recentUpload} uploaded</span>
+                     </motion.div>
+                 ) : (
+                    <>
+                        <Upload className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300" />
+                        <span className="text-sm text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-300">
+                            {isUploading ? 'Uploading...' : 'Drop files here'}
+                        </span>
+                    </>
+                 )}
+             </button>
+             
+             
+          </div>
+
         </div>
       </motion.div>
 
@@ -188,14 +268,20 @@ Please note that this response is generated strictly from your uploaded data wit
         </button>
       )}
 
-      {/* Chat Panel - Center */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-zinc-900">
-        <ChatPanel
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          onSourceClick={handleSourceClick}
-          isLoading={isLoading}
-        />
+         {/* DATA GUARD: If no files, show Empty State */}
+         {instanceFiles.length === 0 ? (
+             <DataMissingState onUploadClick={handleUploadClick} />
+         ) : (
+             /* Otherwise show Chat */
+            <ChatPanel
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            onSourceClick={handleSourceClick}
+            isLoading={isLoading}
+            />
+         )}
       </div>
 
       {/* Context Evidence - Right Panel */}

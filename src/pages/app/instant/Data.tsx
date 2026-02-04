@@ -8,16 +8,16 @@ import Button from '../../../components/ui/Button';
 import Badge from '../../../components/ui/Badge';
 import { useToast } from '../../../components/ui/Toast';
 import {
-  getFilesByInstance,
-  getInstanceById,
+  getFilesByInstant,
+  getInstantById,
   formatBytes,
 } from '../../../data/mockData';
 import type { FileItem } from '../../../data/mockData';
 
 export default function Data() {
   const { id } = useParams<{ id: string }>();
-  const instance = getInstanceById(id || '');
-  const initialFiles = getFilesByInstance(id || '');
+  const instance = getInstantById(id || '');
+  const initialFiles = getFilesByInstant(id || '');
   const { addToast } = useToast();
 
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
@@ -35,7 +35,7 @@ export default function Data() {
     // Simulate adding files with processing status
     const newFiles: FileItem[] = uploadedFiles.map((file, i) => ({
       id: `new-file-${Date.now()}-${i}`,
-      instanceId: id || '',
+      instantId: id || '',
       name: file.name,
       size: file.size,
       type: file.name.split('.').pop() as FileItem['type'],

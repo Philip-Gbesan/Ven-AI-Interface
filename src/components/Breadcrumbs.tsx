@@ -1,14 +1,14 @@
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
-import { getInstanceById } from '../data/mockData';
+import { getInstantById } from '../data/mockData';
 
 export default function Breadcrumbs() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>(); 
   
   const pathnames = location.pathname.split('/').filter((x) => x);
-  const instanceId = id || (pathnames[pathnames.indexOf('instance') + 1]);
-  const instance = instanceId ? getInstanceById(instanceId) : undefined;
+  const instantId = id || (pathnames[pathnames.indexOf('instant') + 1]);
+  const instant = instantId ? getInstantById(instantId) : undefined;
 
   // Build breadcrumb items based on V5 logic
   // "Ven AI" -> Must navigate strictly to /app/dashboard
@@ -16,30 +16,30 @@ export default function Breadcrumbs() {
     { label: 'Ven AI', to: '/app/dashboard' } 
   ];
 
-  if (pathnames.includes('dashboard') && !pathnames.includes('instance')) {
-      // Main Dashboard: "Ven AI > All Instances"
-      items.push({ label: 'All Instances', active: true });
+  if (pathnames.includes('dashboard') && !pathnames.includes('instant')) {
+      // Main Dashboard: "Ven AI > All Instants"
+      items.push({ label: 'All Instants', active: true });
   } else if (pathnames.includes('resources')) {
       // Global Resources: "Ven AI > Data Resources"
       items.push({ label: 'Data Resources', active: true });
   } else if (pathnames.includes('insights')) {
       // Global Insights: "Ven AI > Insights"
       items.push({ label: 'Insights', active: true });
-  } else if (pathnames.includes('settings') && !pathnames.includes('instance')) {
+  } else if (pathnames.includes('settings') && !pathnames.includes('instant')) {
        // Global Settings: "Ven AI > Settings"
        items.push({ label: 'Settings', active: true });
-  } else if (pathnames.includes('new-instance')) {
-      items.push({ label: 'New Instance', active: true });
-  } else if (pathnames.includes('instance') && instanceId) {
-      // Instance Context
-      items.push({ label: 'All Instances', to: '/app/dashboard' });
+  } else if (pathnames.includes('new-instant')) {
+      items.push({ label: 'New Instant', active: true });
+  } else if (pathnames.includes('instant') && instantId) {
+      // Instant Context
+      items.push({ label: 'All Instants', to: '/app/dashboard' });
       
       // If just /dashboard, the instance name IS the active item
       if (pathnames[pathnames.length - 1] === 'dashboard') {
-          items.push({ label: instance?.name || instanceId, active: true });
+          items.push({ label: instant?.name || instantId, active: true });
       } else {
-          // If deeper (e.g. Chat), Instance Name is a link to dashboard
-          items.push({ label: instance?.name || instanceId, to: `/app/instance/${instanceId}/dashboard` });
+          // If deeper (e.g. Chat), Instant Name is a link to dashboard
+          items.push({ label: instant?.name || instantId, to: `/app/instant/${instantId}/dashboard` });
           
           if (pathnames.includes('chat')) {
               items.push({ label: 'Chat', active: true });

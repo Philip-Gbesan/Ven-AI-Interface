@@ -7,10 +7,10 @@ export interface User {
   orgName: string;
 }
 
-export interface Instance {
+export interface Instant {
   id: string;
   name: string;
-  status: 'active' | 'inactive';
+  status: 'active' | 'hibernating' | 'processing';
   engineEnabled: boolean;
   storageUsed: number; // in bytes
   maxStorage: number; // in bytes (1GB limit)
@@ -22,11 +22,11 @@ export interface Instance {
 
 export interface FileItem {
   id: string;
-  instanceId: string;
+  instantId: string;
   name: string;
   size: number; // in bytes
-  type: 'pdf' | 'doc' | 'docx' | 'txt' | 'csv' | 'md';
-  status: 'uploading' | 'parsing' | 'chunking' | 'embedding' | 'ready' | 'error';
+  type: 'pdf' | 'doc' | 'docx' | 'txt' | 'csv' | 'md' | 'mysql';
+  status: 'uploading' | 'parsing' | 'chunking' | 'embedding' | 'ready' | 'failed' | 'error';
   chunkCount: number;
   uploadedAt: string;
   errorMessage?: string;
@@ -43,7 +43,7 @@ export interface ChatSource {
 
 export interface ChatMessage {
   id: string;
-  instanceId: string;
+  instantId: string;
   role: 'user' | 'assistant';
   content: string;
   sources?: ChatSource[];
@@ -52,7 +52,7 @@ export interface ChatMessage {
 
 export interface Conversation {
   id: string;
-  instanceId: string;
+  instantId: string;
   title: string;
   messages: ChatMessage[];
   createdAt: string;
@@ -69,7 +69,7 @@ export const mockUser: User = {
 };
 
 // V4 Requirement: storageUsed must be < 1GB (1073741824 bytes)
-export const mockInstances: Instance[] = [
+export const mockInstants: Instant[] = [
   {
     id: 'inst-1',
     name: 'Legal Documents',
@@ -97,7 +97,7 @@ export const mockInstances: Instance[] = [
   {
     id: 'inst-3',
     name: 'Product Documentation',
-    status: 'inactive',
+    status: 'hibernating',
     engineEnabled: false,
     storageUsed: 150 * 1024 * 1024, // 150MB
     maxStorage: 1 * 1024 * 1024 * 1024,
@@ -120,6 +120,10 @@ export const mockInstances: Instance[] = [
   },
 ];
 
+export const addInstant = (instant: Instant) => {
+    mockInstants.unshift(instant);
+};
+
 // Helper to generate massive mock files
 const generateMockFiles = (count: number): FileItem[] => {
   const files: FileItem[] = [];
@@ -127,13 +131,13 @@ const generateMockFiles = (count: number): FileItem[] => {
   const statuses: FileItem['status'][] = ['ready', 'ready', 'ready', 'ready', 'ready', 'ready', 'ready', 'ready', 'ready', 'error']; // 90% ready
 
   for (let i = 0; i < count; i++) {
-    const instanceIndex = Math.floor(Math.random() * mockInstances.length);
+    const instantIndex = Math.floor(Math.random() * mockInstants.length);
     const type = types[Math.floor(Math.random() * types.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     
     files.push({
       id: `file-${i + 100}`,
-      instanceId: mockInstances[instanceIndex].id,
+      instantId: mockInstants[instantIndex].id,
       name: `Document_${i + 1}_${new Date().getFullYear()}.${type}`,
       size: Math.floor(Math.random() * 15 * 1024 * 1024) + 1024, // 1KB to 15MB
       type,
@@ -151,7 +155,7 @@ export const mockFiles: FileItem[] = [
   // Explicit files for demos
   {
     id: 'file-1',
-    instanceId: 'inst-1',
+    instantId: 'inst-1',
     name: 'Contract_Template_2024.pdf',
     size: 2.4 * 1024 * 1024,
     type: 'pdf',
@@ -161,7 +165,7 @@ export const mockFiles: FileItem[] = [
   },
   {
     id: 'file-2',
-    instanceId: 'inst-1',
+    instantId: 'inst-1',
     name: 'NDA_Standard.docx',
     size: 856 * 1024,
     type: 'docx',
@@ -171,7 +175,7 @@ export const mockFiles: FileItem[] = [
   },
   {
     id: 'file-7',
-    instanceId: 'inst-1',
+    instantId: 'inst-1',
     name: 'Failed_Import.pdf',
     size: 5.2 * 1024 * 1024,
     type: 'pdf',
@@ -185,21 +189,21 @@ export const mockFiles: FileItem[] = [
 export const mockConversations: Conversation[] = [
   {
     id: 'conv-1',
-    instanceId: 'inst-1',
+    instantId: 'inst-1',
     title: 'Contract termination clauses',
     createdAt: '2024-01-28T08:30:00Z',
     updatedAt: '2024-01-28T09:15:00Z',
     messages: [
       {
         id: 'msg-1',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'user',
         content: 'What are the standard termination clauses in our contracts?',
         timestamp: '2024-01-28T08:30:00Z',
       },
       {
         id: 'msg-2',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'assistant',
         content: `Based on your uploaded documents, the standard termination clauses include:
 
@@ -240,14 +244,14 @@ export const mockConversations: Conversation[] = [
       },
       {
         id: 'msg-3',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'user',
         content: 'What happens to intellectual property upon termination?',
         timestamp: '2024-01-28T09:00:00Z',
       },
       {
         id: 'msg-4',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'assistant',
         content: `According to your contract documents, intellectual property rights upon termination are handled as follows:
 
@@ -280,21 +284,21 @@ export const mockConversations: Conversation[] = [
   },
   {
     id: 'conv-2',
-    instanceId: 'inst-1',
+    instantId: 'inst-1',
     title: 'NDA requirements',
     createdAt: '2024-01-27T14:00:00Z',
     updatedAt: '2024-01-27T14:30:00Z',
     messages: [
       {
         id: 'msg-5',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'user',
         content: 'What is the standard NDA duration?',
         timestamp: '2024-01-27T14:00:00Z',
       },
       {
         id: 'msg-6',
-        instanceId: 'inst-1',
+        instantId: 'inst-1',
         role: 'assistant',
         content: `The standard NDA duration in your documents is **3 years** from the date of disclosure [Source 1]. However, for trade secrets, the confidentiality obligation continues indefinitely or until the information no longer qualifies as a trade secret [Source 1].`,
         sources: [
@@ -343,16 +347,16 @@ export function getStoragePercentage(used: number, max: number): number {
   return Math.round((used / max) * 100);
 }
 
-export function getFilesByInstance(instanceId: string): FileItem[] {
-  return mockFiles.filter((f) => f.instanceId === instanceId);
+export function getFilesByInstant(instantId: string): FileItem[] {
+  return mockFiles.filter((f) => f.instantId === instantId);
 }
 
-export function getConversationsByInstance(instanceId: string): Conversation[] {
-  return mockConversations.filter((c) => c.instanceId === instanceId);
+export function getConversationsByInstant(instantId: string): Conversation[] {
+  return mockConversations.filter((c) => c.instantId === instantId);
 }
 
-export function getInstanceById(id: string): Instance | undefined {
-  return mockInstances.find((i) => i.id === id);
+export function getInstantById(id: string): Instant | undefined {
+  return mockInstants.find((i) => i.id === id);
 }
 
 export function getFileTypeIcon(type: FileItem['type']): string {
@@ -363,8 +367,9 @@ export function getFileTypeIcon(type: FileItem['type']): string {
     txt: 'FileCode',
     csv: 'Table',
     md: 'FileCode',
+    mysql: 'Database', // Added MySQL support
   };
-  return icons[type];
+  return icons[type] || 'File';
 }
 
 export function getStatusColor(status: FileItem['status']): string {
@@ -374,6 +379,7 @@ export function getStatusColor(status: FileItem['status']): string {
     chunking: 'text-orange-400',
     embedding: 'text-purple-400',
     ready: 'text-green-400',
+    failed: 'text-red-400',
     error: 'text-red-400',
   };
   return colors[status];

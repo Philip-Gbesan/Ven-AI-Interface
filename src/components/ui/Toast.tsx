@@ -8,6 +8,11 @@ interface Toast {
   title: string;
   message?: string;
   duration?: number;
+  action?: {
+    label: string;
+    path: string;
+    onClick?: () => void;
+  };
 }
 
 interface ToastContextType {
@@ -110,6 +115,21 @@ function ToastItem({
         <p className="text-sm font-medium text-zinc-100">{toast.title}</p>
         {toast.message && (
           <p className="text-xs text-zinc-400 mt-0.5">{toast.message}</p>
+        )}
+        {toast.action && (
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (toast.action?.onClick) toast.action.onClick();
+                    if (toast.action?.path) window.location.href = toast.action.path; // Simple redirect
+                }}
+                className="mt-2 text-xs font-semibold text-zinc-300 hover:text-white transition-colors flex items-center gap-1"
+            >
+                {toast.action.label}
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
         )}
       </div>
       <button

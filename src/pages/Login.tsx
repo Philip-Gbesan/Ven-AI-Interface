@@ -16,11 +16,13 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    navigate('/app/instances');
+    if (formData.email.length > 0 && formData.password.length > 0) {
+        setIsLoading(true);
+        // Simulate login
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsLoading(false);
+        navigate('/app/dashboard');
+    }
   };
 
   return (
@@ -35,7 +37,7 @@ export default function Login() {
             Welcome back
           </h1>
           <p className="text-sm text-zinc-500">
-            Sign in to access your instances
+            Sign in to access your instants
           </p>
         </div>
 

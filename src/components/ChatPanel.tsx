@@ -1,17 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Send, 
     Bot, 
     User, 
     Loader2, 
-    Paperclip, 
-    MoreHorizontal,
     Copy,
     RotateCcw,
     Bookmark,
-    Pencil,
-    Check
+    Pencil
 } from 'lucide-react';
 import { useToast } from '../components/ui/Toast';
 import type { ChatMessage } from '../data/mockData';
@@ -85,12 +81,16 @@ export default function ChatPanel({ messages, onSendMessage, isLoading, onSource
   return (
     <div className="flex flex-col h-full bg-white dark:bg-zinc-900 relative">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
         {messages.length === 0 ? (
-           <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
-               <Bot className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-4" />
-               <p className="text-zinc-500 dark:text-zinc-400 font-medium">Start a new conversation</p>
-               <p className="text-sm text-zinc-400 dark:text-zinc-500">Ask questions about your uploaded documents</p>
+           <div className="flex flex-col items-center justify-center h-full text-center p-8">
+               <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl flex items-center justify-center mb-6">
+                   <Bot className="w-10 h-10 text-zinc-300 dark:text-zinc-600" />
+               </div>
+               <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Welcome to your Instant</h2>
+               <p className="text-zinc-500 dark:text-zinc-400 max-w-md">
+                   Upload documents to the dashboard to start querying your private data environment.
+               </p>
            </div>
         ) : (
             <>
@@ -99,31 +99,20 @@ export default function ChatPanel({ messages, onSendMessage, isLoading, onSource
                     key={msg.id}
                     className={`group flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                 >
-                    {/* Avatar */}
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        msg.role === 'user' ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-                    }`}>
-                        {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
-                    </div>
+                    {/* Minimal: No Avatar, No Name, No Timestamp */}
 
                     {/* Content */}
                     <div className={`flex flex-col max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                        {/* Name & Time */}
-                        <div className={`flex items-center gap-2 mb-1 text-xs text-zinc-400 dark:text-zinc-500 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                            <span className="font-medium text-zinc-600 dark:text-zinc-300">{msg.role === 'user' ? 'You' : 'Ven AI'}</span>
-                            <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-
                         {/* Message Bubble */}
                         <div className={`rounded-2xl p-4 shadow-sm relative group/bubble ${
                             msg.role === 'user' 
-                                ? 'bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-tr-none' 
-                                : 'bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-tl-none'
+                                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100' 
+                                : 'bg-transparent pl-0 text-zinc-900 dark:text-zinc-100'
                         }`}>
                             {renderContent(msg.content, msg.sources)}
                         </div>
 
-                        {/* Message Actions (V5) */}
+                        {/* Message Actions (Hover Only) */}
                          <div className={`flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <button onClick={() => copyToClipboard(msg.content)} className="p-1.5 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors" title="Copy">
                                 <Copy className="w-3.5 h-3.5" />
@@ -152,12 +141,9 @@ export default function ChatPanel({ messages, onSendMessage, isLoading, onSource
         
         {isLoading && (
             <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5" />
-                </div>
-                <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl rounded-tl-none p-4 shadow-sm flex items-center gap-2">
+                <div className="bg-transparent pl-0 p-4 flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
-                    <span className="text-zinc-500 dark:text-zinc-400 text-sm">Analyzing documents...</span>
+                    <span className="text-zinc-500 dark:text-zinc-400 text-sm">Thinking...</span>
                 </div>
             </div>
         )}
@@ -168,11 +154,6 @@ export default function ChatPanel({ messages, onSendMessage, isLoading, onSource
       <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
          <div className="max-w-4xl mx-auto relative">
              <form onSubmit={handleSubmit} className="relative">
-                <div className="absolute left-3 top-3">
-                    <button type="button" className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors">
-                        <Paperclip className="w-5 h-5" />
-                    </button>
-                </div>
                 <textarea 
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -183,7 +164,7 @@ export default function ChatPanel({ messages, onSendMessage, isLoading, onSource
                         }
                     }}
                     placeholder="Ask anything about your data..."
-                    className="w-full pl-14 pr-14 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-500 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 transition-all resize-none min-h-[60px] max-h-[200px]"
+                    className="w-full pl-4 pr-14 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-500 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 transition-all resize-none min-h-[60px] max-h-[200px]"
                     rows={1}
                 />
                 <div className="absolute right-3 top-3">

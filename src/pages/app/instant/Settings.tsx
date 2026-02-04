@@ -15,11 +15,11 @@ import Input from '../../../components/ui/Input';
 import Toggle from '../../../components/ui/Toggle';
 import Badge from '../../../components/ui/Badge';
 import { useToast } from '../../../components/ui/Toast';
-import { getInstanceById, formatBytes, formatDate } from '../../../data/mockData';
+import { getInstantById, formatBytes, formatDate } from '../../../data/mockData';
 
 export default function Settings() {
   const { id } = useParams<{ id: string }>();
-  const instance = getInstanceById(id || '');
+  const instance = getInstantById(id || '');
   const { addToast } = useToast();
 
   const [instanceName, setInstanceName] = useState(instance?.name || '');

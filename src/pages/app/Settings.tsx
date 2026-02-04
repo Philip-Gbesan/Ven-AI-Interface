@@ -117,7 +117,7 @@ export default function Settings() {
                 <div>
                     <h3 className="text-sm font-bold text-red-900 dark:text-red-200">Delete Account & Resources</h3>
                     <p className="text-sm text-red-700 dark:text-red-300 mt-1 max-w-lg">
-                        Permanently delete your account and all associated secure data instances. This action cannot be undone.
+                        Permanently delete your account and all associated secure data instants. This action cannot be undone.
                     </p>
                 </div>
                 <Button 
@@ -155,7 +155,7 @@ export default function Settings() {
 
                     <h2 className="text-xl font-bold text-zinc-900 mb-2">Delete Account?</h2>
                     <p className="text-sm text-zinc-600 mb-6">
-                        This will permanently delete your **Ven AI** account and all **{3}** active instances. All data will be wiped from our secure enclaves immediately.
+                        This will permanently delete your **Ven AI** account and all **{3}** active instants. All data will be wiped from our secure enclaves immediately.
                     </p>
 
                     <div className="flex gap-3 justify-end">

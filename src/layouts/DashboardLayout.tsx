@@ -5,7 +5,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { mockUser } from '../data/mockData';
 import { User, LogOut, Settings, Loader2, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../hooks/useTheme';
+import { useTheme } from '../context/ThemeContext';
 
 interface DashboardLayoutProps {
   mode?: 'main' | 'instance';

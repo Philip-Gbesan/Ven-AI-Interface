@@ -3,12 +3,10 @@ import {
   LayoutDashboard,
   Database,
   MessageSquare,
-  Settings,
   ChevronLeft,
   Zap,
   CreditCard,
   Sparkles,
-  FileText,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -29,9 +27,9 @@ export default function Sidebar({ mode, collapsed, onToggle }: SidebarProps) {
       path: "/app/dashboard",
     },
     {
-      name: "Data Resources",
+      name: "Files",
       icon: Database,
-      path: "/app/resources",
+      path: "/app/files",
     },
     {
       name: "Insights",
@@ -45,22 +43,22 @@ export default function Sidebar({ mode, collapsed, onToggle }: SidebarProps) {
     },
   ];
 
-  // Mode B: Instance Sidebar Links
-  const instanceNavItems = [
+  // Mode B: Instant Sidebar Links
+  const instantNavItems = [
     {
       name: "Dashboard",
       icon: LayoutDashboard,
-      path: `/app/instance/${id}/dashboard`,
+      path: `/app/instant/${id}/dashboard`,
     },
     {
       name: "Chat Interface",
       icon: MessageSquare,
-      path: `/app/instance/${id}/chat`,
+      path: `/app/instant/${id}/chat`,
     },
   ];
 
   // Determine which links to show
-  const navItems = mode === "main" ? mainNavItems : instanceNavItems;
+  const navItems = mode === "main" ? mainNavItems : instantNavItems;
 
   // In Instance mode, sidebar is always collapsed (locked)
   const isLockedCollapsed = mode === "instance";
