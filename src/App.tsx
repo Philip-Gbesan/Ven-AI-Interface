@@ -19,7 +19,9 @@ import Chat from './pages/app/instant/Chat';
 import InstanceSettings from './pages/app/instant/Settings';
 import Files from './pages/app/Files';
 import Insights from './pages/app/Insights';
-import Settings from './pages/app/Settings';
+import Billing from './pages/app/Billing';
+import UsageHistory from './pages/app/UsageHistory';
+import Integration from './pages/app/Integration';
 
 function App() {
   return (
@@ -45,7 +47,9 @@ function App() {
               <Route path="/app/dashboard" element={<Instants />} />
               <Route path="/app/files" element={<Files />} />
               <Route path="/app/insights" element={<Insights />} />
-              <Route path="/app/settings" element={<Settings />} />
+              <Route path="/app/billings" element={<Billing />} />
+              <Route path="/app/billings/history" element={<UsageHistory />} />
+              <Route path="/app/integration" element={<Integration />} />
             </Route>
 
             {/* INSTANT MODE: Specific Instant Context */}

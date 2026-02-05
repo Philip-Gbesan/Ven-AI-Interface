@@ -7,6 +7,7 @@ import {
   Zap,
   CreditCard,
   Sparkles,
+  Blocks,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -37,9 +38,14 @@ export default function Sidebar({ mode, collapsed, onToggle }: SidebarProps) {
       path: "/app/insights",
     },
     {
-      name: "Billing & Settings",
+       name: "Integration",
+       icon: Blocks,
+       path: "/app/integration",
+    },
+    {
+      name: "Billings",
       icon: CreditCard,
-      path: "/app/settings",
+      path: "/app/billings",
     },
   ];
 

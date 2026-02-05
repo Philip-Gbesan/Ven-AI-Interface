@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Database } from 'lucide-react';
+import { Database, UploadCloud } from 'lucide-react';
 import DataTable from '../../components/DataTable';
+import RemoteUploadModal from '../../components/RemoteUploadModal';
 import { mockFiles, mockInstants, type FileItem } from '../../data/mockData';
 
 export default function Files() {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
   // Aggregate all files from all instances for the global view
   const allFiles: FileItem[] = mockFiles.map(file => {
       const instant = mockInstants.find(i => i.id === file.instantId);
@@ -15,14 +19,29 @@ export default function Files() {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col"> 
-      <div className="mb-6 flex-shrink-0">
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2">
-          Files
-        </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium">
-          Global view of {allFiles.length} secure data artifacts.
-        </p>
+      <div className="mb-6 flex-shrink-0 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight mb-2">
+            Files
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 font-medium">
+            Global view of {allFiles.length} secure data artifacts.
+          </p>
+        </div>
+        
+        <button
+          onClick={() => setIsUploadModalOpen(true)}
+          className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-medium rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors flex items-center gap-2 shadow-sm"
+        >
+          <UploadCloud className="w-4 h-4" />
+          Upload File Remotely
+        </button>
       </div>
+
+      <RemoteUploadModal 
+        isOpen={isUploadModalOpen} 
+        onClose={() => setIsUploadModalOpen(false)} 
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

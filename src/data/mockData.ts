@@ -5,6 +5,7 @@ export interface User {
   email: string;
   avatar: string;
   orgName: string;
+  credits: number;
 }
 
 export interface Instant {
@@ -66,6 +67,7 @@ export const mockUser: User = {
   email: 'alex@acmecorp.com',
   avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex',
   orgName: 'Acme Corporation',
+  credits: 30.00,
 };
 
 // V4 Requirement: storageUsed must be < 1GB (1073741824 bytes)
@@ -97,7 +99,7 @@ export const mockInstants: Instant[] = [
   {
     id: 'inst-3',
     name: 'Product Documentation',
-    status: 'hibernating',
+    status: 'active',
     engineEnabled: false,
     storageUsed: 150 * 1024 * 1024, // 150MB
     maxStorage: 1 * 1024 * 1024 * 1024,

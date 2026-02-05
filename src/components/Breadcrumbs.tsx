@@ -22,12 +22,18 @@ export default function Breadcrumbs() {
   } else if (pathnames.includes('resources')) {
       // Global Resources: "Ven AI > Data Resources"
       items.push({ label: 'Data Resources', active: true });
+  } else if (pathnames.includes('files')) {
+      items.push({ label: 'Files', active: true });
   } else if (pathnames.includes('insights')) {
       // Global Insights: "Ven AI > Insights"
       items.push({ label: 'Insights', active: true });
-  } else if (pathnames.includes('settings') && !pathnames.includes('instant')) {
-       // Global Settings: "Ven AI > Settings"
-       items.push({ label: 'Settings', active: true });
+  } else if (pathnames.includes('billings')) {
+      items.push({ label: 'Billings', to: location.pathname.includes('history') ? '/app/billings' : undefined, active: !location.pathname.includes('history') });
+      if (pathnames.includes('history')) {
+          items.push({ label: 'Usage History', active: true });
+      }
+  } else if (pathnames.includes('integration')) {
+      items.push({ label: 'Integration', active: true });
   } else if (pathnames.includes('new-instant')) {
       items.push({ label: 'New Instant', active: true });
   } else if (pathnames.includes('instant') && instantId) {
