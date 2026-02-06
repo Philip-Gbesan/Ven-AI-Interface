@@ -10,11 +10,11 @@ export default function Integration() {
   ];
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-8">
+    <div className="h-full  ">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-5xl mx-auto space-y-8"
+        className="max-w-5xl mx-auto space-y-4"
       >
         {/* Header */}
         <div className="text-center md:text-left space-y-2">
